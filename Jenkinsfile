@@ -1,16 +1,17 @@
 pipeline {
-    agent any 
+    agent any
+
     options {
         disableConcurrentBuilds()
     }
 
     environment {
         DOCKER_IMAGE = "srinu0930/multibranch-flask-app"
-        GIT_USERNAME = "srinucloud"
         GIT_EMAIL = "srinuengr@gmail.com"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -23,15 +24,16 @@ pipeline {
             }
 
             steps {
-                env.imageTag = "build-${BUILD_NUMBER}"
-                withDockerRegistry(credentialsId: 'docker-creds',
-                usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', 
-                toolName: 'docker', url: 'https://index.docker.io/v1/') {
-                    sh "docker build -t ${DOCKER_IMAGE}:${imageTag} ."
-                    echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
-                    sh "docker push ${DOCKER_IMAGE}:${imageTag}"
+                script {
+                    env.IMAGE_TAG = "build-${BUILD_NUMBER}"
                 }
 
+                withDockerRegistry(credentialsId: 'docker-creds', url: 'https://index.docker.io/v1/') {
+                    sh """
+                        docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} .
+                        docker push ${DOCKER_IMAGE}:${IMAGE_TAG}
+                    """
+                }
             }
         }
 
@@ -42,27 +44,33 @@ pipeline {
 
             steps {
                 script {
-                    withCredentials([gitUsernamePassword(credentialsId: 'github-creds',usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT-TOKEN',   gitToolName: 'Default')]) {
-                        
-                        sh ''' 
-                        set -e
-                        git config --global user.name '${GIT_USERNAME}'
-                        git config --global user.email '${GIT_EMAIL}'
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-creds',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_TOKEN'
+                    )]) {
 
-                        git fetch origin main
-                        git checkout main
-                        git reset --hard origin/main
+                        sh """
+                            set -e
 
-                        sed -i "s|image: .*|image: ${DOCKER_IMAGE}:${imageTag}|g" k8s/deployment.yml
-                        git add k8s/deployment.yml
-                        git diff --cached --quiet || git commit -m "Update deployment image to ${DOCKER_IMAGE}:${imageTag}"
-                        git push origin main
-                        '''
+                            git config --global user.name "${GIT_USERNAME}"
+                            git config --global user.email "${GIT_EMAIL}"
 
+                            git fetch origin main
+                            git checkout main
+                            git reset --hard origin/main
+
+                            sed -i 's|image: .*|image: ${DOCKER_IMAGE}:${IMAGE_TAG}|' k8s/deployment.yml
+
+                            git add k8s/deployment.yml
+
+                            git diff --cached --quiet || git commit -m "Update image to ${DOCKER_IMAGE}:${IMAGE_TAG}"
+
+                            git push https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/srinucloud/Production-Grade-Deployment.git main
+                        """
+                    }
                 }
             }
         }
-    }
-
     }
 }
