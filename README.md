@@ -136,6 +136,9 @@ Password: (above output)
 
 ![alt text](image-1.png)
 
+<img width="857" height="588" alt="image" src="https://github.com/user-attachments/assets/1182548b-dcfe-4964-b0f5-1f4229f973ae" />
+
+
 🧩 PHASE 1 — Install Prometheus + Grafana using Helm
 We’ll use the kube-prometheus-stack (best practice).
 
