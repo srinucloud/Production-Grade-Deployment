@@ -132,3 +132,56 @@ Username: admin
 Password: (above output)
 
 
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+🧩 PHASE 1 — Install Prometheus + Grafana using Helm
+We’ll use the kube-prometheus-stack (best practice).
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+kubectl create namespace monitoring
+
+helm install monitoring prometheus-community/kube-prometheus-stack \
+  -n monitoring
+⏳ Takes 1–2 minutes.
+
+kubectl get pods -n monitoring
+You should see:
+Prometheus
+alertmanager
+grafana
+node-exporter
+kube-state-metrics
+
+🧩 PHASE 2 — Access Grafana
+1️⃣ Expose Grafana (LoadBalancer)
+kubectl patch svc monitoring-grafana \
+  -n monitoring \
+  -p '{"spec":{"type":"LoadBalancer"}}'
+
+2️⃣ Get Grafana URL
+kubectl get svc monitoring-grafana -n monitoring
+
+Open:
+http://<EXTERNAL-IP>
+
+3️⃣ Get Grafana Login Password
+kubectl get secret monitoring-grafana \
+  -n monitoring \
+  -o jsonpath="{.data.admin-password}" | base64 -d
+
+Username: admin
+Password: (output)
+
+🧩 PHASE 3 — Dashboards (Already Auto-Configured)
+The stack already includes best dashboards.
+Must-use Dashboards in Grafana:
+Kubernetes / Nodes
+Kubernetes / Pods
+Kubernetes / Deployments
+Kubernetes / Cluster
+Node Exporter Full
+👉 No manual import needed. They are automatically installed by the kube-prometheus-stack Helm chart.
