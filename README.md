@@ -137,6 +137,8 @@ Password: (above output)
 ![alt text](image-1.png)
 
 <img width="857" height="588" alt="image" src="https://github.com/user-attachments/assets/1182548b-dcfe-4964-b0f5-1f4229f973ae" />
+<img width="1374" height="765" alt="Screenshot 2026-06-12 013411" src="https://github.com/user-attachments/assets/8a1590d6-73d4-4044-86bb-cb4aadc49866" />
+
 
 
 🧩 PHASE 1 — Install Prometheus + Grafana using Helm
