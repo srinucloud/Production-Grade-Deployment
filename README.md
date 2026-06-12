@@ -14,9 +14,9 @@ ecommerce-app-repo/
     └── application.yaml
 ⚠️ k8s/ and argocd/ exist ONLY in main branch
 
-==> Launch Ubuntu 24.04 AMI, t2.large
+==> Launch Ubuntu 24.04 AMI, t3.large
 
-# Install OpenJDK 17 JRE Headless
+# Install OpenJDK 21 JRE Headless
 sudo apt install openjdk-21-jre-headless -y
 
 ==> Install Jenkins
